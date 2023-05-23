@@ -4,7 +4,6 @@
     <title>Upload new File</title>
     <base target="_top">
     <link rel="stylesheet" href="{{url_for('static', filename='index.css')}}">
-    <script src="{{url_for('static', filename='index.js')}}"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.5/xlsx.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.3/js/bootstrap.min.js"></script>
@@ -13,28 +12,10 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.3/js/bootstrap.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css">
-    <style>
-        .background {
-            background: #fff;
-            width: 100%;
-            position: absolute;
-            top: 0;
-            bottom: 0;
-        }
-
-        .container-center {
-            max-width: 900px;
-            height: 100%;
-            background-color: #fff;
-            padding: 30px;
-            margin: auto;
-            overflow: auto;
-            box-shadow: 0 0 50px #ccc;
-        }
-    </style>
 </head>
 
 <body>
+    <script src="{{url_for('static', filename='index.js')}}"></script>
     <div class="background">
         <div class="container-center">
             <!-- SELECT PERIOD -->
@@ -93,12 +74,9 @@
 
             <!-- UPLOAD -->
             <div id="upload" style="display: none;">
-                <form>
-                    <label id="label-TillOpticianPerformanceAnalysis" for="TillOpticianPerformanceAnalysis"
-                        class="form-label">Till Optician Performance Analysis</label>
-                    <input class="form-control form-control-sm" id="TillOpticianPerformanceAnalysis" type="file"
-                        accept=".csv,text/csv, .xls, .xslx"
-                        onchange="importFile(this.parentNode, 'TillOpticianPerformanceAnalysis')" name="file">
+                <form name="upload-form" method="post" enctype="multipart/form-data">
+                    <input id="file" name="file" type="file" />
+                    <button type="submit">Submit</button>
                 </form>
 
                 <br>
