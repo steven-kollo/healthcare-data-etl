@@ -28,6 +28,7 @@ function processFile(e, label) {
         return displayUploadStatus(label, 'file_error', e.file.files[0].name)
     }
     const formData = new FormData(e)
+    console.log(getCurrentURL())
     $.ajax({
         type: 'post',
         url: `${getCurrentURL()}/upload?label=${label}&period=q${PERIOD.qtr}-w${PERIOD.week}-${PERIOD.year}`,
