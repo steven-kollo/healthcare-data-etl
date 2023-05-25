@@ -5,7 +5,7 @@ from google.cloud import storage
 def upload_blob(bucket_name, file_name, destination_blob_name):
     file_name = 'why-us_q1-w1-2023.csv'
     bucket_name = 'healthcare-data-bucket'
-    source_file_name = f"/home/steven_kollo_workspace/healthcare-data-etl/client-app/uploads/{file_name}"
+    source_file_name = f"uploads/{file_name}"
     # The ID of your GCS object
     destination_blob_name = file_name
 
