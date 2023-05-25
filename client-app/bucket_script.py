@@ -2,8 +2,7 @@
 from google.cloud import storage
 
 
-def upload_blob():
-    file_name = 'why-us_q1-w1-2023.csv'
+def upload_blob(file_name):
     bucket_name = 'healthcare-data-bucket'
     source_file_name = f"uploads/{file_name}"
     # The ID of your GCS object
