@@ -19,6 +19,3 @@ def upload_blob(file_name):
     print(
         f"File {source_file_name} uploaded to {destination_blob_name}."
     )
-
-
-upload_blob()
