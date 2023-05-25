@@ -2,7 +2,7 @@
 from google.cloud import storage
 
 
-def upload_blob(bucket_name, file_name, destination_blob_name):
+def upload_blob():
     file_name = 'why-us_q1-w1-2023.csv'
     bucket_name = 'healthcare-data-bucket'
     source_file_name = f"uploads/{file_name}"
