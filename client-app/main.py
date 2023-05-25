@@ -2,6 +2,7 @@ import os
 from flask import Flask, flash, request, make_response, render_template
 from werkzeug.utils import secure_filename
 from flask import send_from_directory
+from bucket_script import upload_blob
 
 UPLOAD_FOLDER = './uploads'
 ALLOWED_EXTENSIONS = {'csv', 'xls', 'xlsm', 'xlsx'}
