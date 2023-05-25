@@ -17,14 +17,18 @@ def allowed_file(filename):
 
 @app.route('/upload', methods=['POST'])
 def upload():
-
+    period = request.args.get('period')
+    label = request.args.get('label')
     file = request.files['file']
     if file.filename == '':
         flash('No selected file')
 
     if file and allowed_file(file.filename):
         filename = secure_filename(file.filename)
-        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        formated_filename = f'{label}_{period}.{filename.rsplit(".", 1)[1].lower()}'
+        file.save(os.path.join(
+            app.config['UPLOAD_FOLDER'], formated_filename))
+        print(f'File saved as "{formated_filename}"')
     return make_response('', 200)
 
 
