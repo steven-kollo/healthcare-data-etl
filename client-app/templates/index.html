@@ -75,18 +75,32 @@
             <!-- UPLOAD -->
             <div id="upload" style="display: none;">
                 <form name="upload-form" method="post" enctype="multipart/form-data">
-                    <input id="file" name="file" type="file" />
-                    <button type="submit">Submit</button>
+                    <label id="label-transactions" for="transactions" class="form-label">Transactions <a
+                            id="status-transactions"></a></label>
+                    <input class="form-control form-control-sm" accept=".csv,text/csv, .xls, .xslx" id="transactions"
+                        name="file" type="file" onchange="processFile(this.parentNode, 'transactions')">
                 </form>
-
                 <br>
+                <form name="upload-form" method="post" enctype="multipart/form-data">
+                    <label id="label-why-us" for="why-us" class="form-label">Why us <a id="status-why-us"></a></label>
+                    <input class="form-control form-control-sm" accept=".csv,text/csv, .xls, .xslx" id="why-us"
+                        name="file" type="file" onchange="processFile(this.parentNode, 'why-us')">
+                </form>
+                <br>
+                <form name="upload-form" method="post" enctype="multipart/form-data">
+                    <label id="label-new-patients" for="new-patients" class="form-label">New patients <a
+                            id="status-new-patients"></a></label>
+                    <input class="form-control form-control-sm" accept=".csv,text/csv, .xls, .xslx" id="new-patients"
+                        name="file" type="file" onchange="processFile(this.parentNode, 'new-patients')">
+                </form>
+                <br>
+                <form name="upload-form" method="post" enctype="multipart/form-data">
+                    <label id="label-sales-by-brand" for="sales-by-brand" class="form-label">Sales by brand <a
+                            id="status-sales-by-brand"></a></label>
+                    <input class="form-control form-control-sm" accept=".csv,text/csv, .xls, .xslx" id="sales-by-brand"
+                        name="file" type="file" onchange="processFile(this.parentNode, 'sales-by-brand')">
+                </form>
             </div>
         </div>
     </div>
 </body>
-
-<!-- <h1>Hi!</h1>
-            <form method=post enctype=multipart/form-data>
-                <input type=file name=file>
-                <input type=submit value=Upload>
-            </form> -->
