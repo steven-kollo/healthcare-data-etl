@@ -29,7 +29,7 @@ def upload():
         file.save(os.path.join(
             app.config['UPLOAD_FOLDER'], formated_filename))
         print(f'File saved as "{formated_filename}"')
-        upload_blob(formated_filename)
+        # upload_blob(formated_filename)
     return make_response('', 200)
 
 
