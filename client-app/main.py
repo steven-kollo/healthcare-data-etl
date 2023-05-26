@@ -26,7 +26,8 @@ def upload():
     if file and allowed_file(file.filename):
         filename = secure_filename(file.filename)
         formated_filename = f'{label}_{period}.{filename.rsplit(".", 1)[1].lower()}'
-        upload_blob(file_name='why-us_q1-w1-2023.csv', file=file)
+        upload_blob(file_name='why-us_q1-w1-2023.csv',
+                    file=file.read())
         return make_response(formated_filename, 200)
         file.save(os.path.join(
             app.config['UPLOAD_FOLDER'], formated_filename))
@@ -35,6 +36,6 @@ def upload():
     return make_response('', 200)
 
 
-@app.route('/', methods=['POST', 'GET'])
+@ app.route('/', methods=['POST', 'GET'])
 def render():
     return render_template('index.html')

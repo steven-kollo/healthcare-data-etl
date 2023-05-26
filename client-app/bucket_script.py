@@ -4,16 +4,14 @@ from google.cloud import storage
 
 def upload_blob(file_name, file):
     bucket_name = 'healthcare-data-bucket'
-    # source_file_name = f"uploads/{file_name}"
-    contents = 'some text'
-    destination_blob_name = file_name
+    contents = 'some text'  # string file here
 
     storage_client = storage.Client()
     bucket = storage_client.bucket(bucket_name)
-    blob = bucket.blob(destination_blob_name)
+    blob = bucket.blob(file_name)
 
     blob.upload_from_string(contents)
 
     print(
-        f"File {file_name} uploaded to {destination_blob_name}."
+        f"File {file_name} uploaded to {bucket_name}."
     )
