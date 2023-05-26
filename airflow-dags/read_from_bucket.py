@@ -47,7 +47,7 @@ if gcs_to_bq is not None:
     #     dag=dag)
     GCS_Files = GCSListObjectsOperator(
         task_id='GCS_Files',
-        bucket='data',
+        bucket='healthcare-data-bucket',
         prefix='/',
         delimiter='.csv',
         dag=dag
