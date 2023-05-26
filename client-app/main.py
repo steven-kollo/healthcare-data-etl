@@ -29,11 +29,6 @@ def upload():
         upload_blob(file_name=formated_filename,
                     file=file)
         return make_response(file.read(), 200)
-        file.save(os.path.join(
-            app.config['UPLOAD_FOLDER'], formated_filename))
-        print(f'File saved as "{formated_filename}"')
-
-    return make_response('', 200)
 
 
 @ app.route('/', methods=['POST', 'GET'])
