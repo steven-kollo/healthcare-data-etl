@@ -31,7 +31,7 @@ function processFile(e, label) {
     console.log(getCurrentURL())
     $.ajax({
         type: 'post',
-        url: `${getCurrentURL()}/upload?label=${label}&period=q${PERIOD.qtr}-w${PERIOD.week}-${PERIOD.year}`,
+        url: `${getCurrentURL()}upload?label=${label}&period=q${PERIOD.qtr}-w${PERIOD.week}-${PERIOD.year}`,
         data: formData,
         contentType: false,
         cache: false,
