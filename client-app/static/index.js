@@ -1,7 +1,7 @@
 let PERIOD = {
-    qtr: 1,
-    week: 1,
-    year: 2023
+    qtr: '',
+    week: '',
+    year: ''
 }
 
 const STATUS = {
@@ -20,8 +20,19 @@ const STATUS = {
 }
 
 function selectPeriod() {
-    document.getElementById(`select-period`).style = "display: none;"
-    document.getElementById(`upload`).style = "display: inline;"
+    const week = document.getElementById('week-select').value
+    const qtr = document.getElementById('qtr-select').value
+    if (week != 'Select Week' && qtr != 'Select QTR') {
+        PERIOD.week = week
+        PERIOD.qtr = qtr
+        PERIOD.year = new Date().getFullYear()
+        document.getElementById('select-period').style = "display: none;"
+        document.getElementById('upload').style = "display: inline;"
+    } else {
+        document.getElementById('select-period-status').style = "color: red; display: inline; font-size: 0.76em;"
+    }
+    console.log(PERIOD)
+
 }
 function processFile(e, label) {
     if (e.file.files[0].name == undefined || !validateFileName(label, e.file.files[0].name)) {
@@ -30,7 +41,7 @@ function processFile(e, label) {
     const formData = new FormData(e)
     $.ajax({
         type: 'post',
-        url: `${getCurrentURL()}upload?label=${label}&period=q${PERIOD.qtr}-w${PERIOD.week}-${PERIOD.year}`,
+        url: `${getCurrentURL()}/upload?label=${label}&period=q${PERIOD.qtr}-w${PERIOD.week}-${PERIOD.year}`,
         data: formData,
         contentType: false,
         cache: false,
