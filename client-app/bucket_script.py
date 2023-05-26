@@ -4,7 +4,7 @@ from google.cloud import storage
 
 def upload_blob(file_name, file):
     bucket_name = 'healthcare-data-bucket'
-    contents = 'some text'  # string file here
+    contents = file.read()  # string file here
 
     storage_client = storage.Client()
     bucket = storage_client.bucket(bucket_name)
