@@ -1,4 +1,3 @@
-import os
 from flask import Flask, flash, request, make_response, render_template
 from werkzeug.utils import secure_filename
 from bucket_script import upload_blob
