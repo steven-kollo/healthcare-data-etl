@@ -15,3 +15,4 @@ def upload_blob(file_name, file):
     print(
         f"File {file_name} uploaded to {bucket_name}."
     )
+    return True

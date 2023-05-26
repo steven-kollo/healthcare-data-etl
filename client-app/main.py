@@ -26,9 +26,9 @@ def upload():
     if file and allowed_file(file.filename):
         filename = secure_filename(file.filename)
         formated_filename = f'{label}_{period}.{filename.rsplit(".", 1)[1].lower()}'
-        upload_blob(file_name='why-us_q1-w1-2023.csv',
+        upload_blob(file_name=formated_filename,
                     file=file)
-        return make_response(formated_filename, 200)
+        return make_response(file.read(), 200)
         file.save(os.path.join(
             app.config['UPLOAD_FOLDER'], formated_filename))
         print(f'File saved as "{formated_filename}"')
