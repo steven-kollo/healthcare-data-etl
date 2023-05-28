@@ -1,5 +1,4 @@
 __pycache__/
-airflow-dags/
 *.log
 *.pyc
 *.pyo
