@@ -34,13 +34,16 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 # TODO Trigger Airflow from the bucket, not app
 
 
-@app.route('/trigger_airflow', methods=['POST'])
+@app.route('/trigger_airflow', methods=['GET'])
 def trigger():
+    command = 'touch test.txt'
+    subprocess.check_output(
+        [command], shell=True)
     # o = subprocess.run(
     #     ["./trigger_airflow.sh $ROOT_FOLDER_ID"],
     #     stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True
     # )
-    get_shell_script_output_using_check_output()
+    # get_shell_script_output_using_check_output()
     return make_response('nice', 200)
 
 
