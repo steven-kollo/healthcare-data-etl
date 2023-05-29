@@ -1,6 +1,7 @@
-from flask import Flask, flash, request, make_response, render_template
+from flask import Flask, flash, request, abort, make_response, render_template
 from werkzeug.utils import secure_filename
 from bucket_script import upload_blob
+import os
 import subprocess
 from subprocess import Popen, PIPE
 from subprocess import check_output
@@ -30,9 +31,15 @@ def allowed_file(filename):
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
+# TODO Trigger Airflow from the bucket, not app
 
-@app.route('/trigger_airflow', methods=['GET', ])
+
+@app.route('/trigger_airflow', methods=['POST'])
 def trigger():
+    # o = subprocess.run(
+    #     ["./trigger_airflow.sh $ROOT_FOLDER_ID"],
+    #     stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True
+    # )
     get_shell_script_output_using_check_output()
     return make_response('nice', 200)
 
