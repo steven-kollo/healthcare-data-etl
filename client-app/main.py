@@ -50,7 +50,7 @@ def upload():
         formated_filename = f'{label}_{period}.{filename.rsplit(".", 1)[1].lower()}'
         upload_blob(file_name=formated_filename,
                     file=file)
-        get_shell_script_output_using_check_output()
+        # get_shell_script_output_using_check_output()
         return make_response(file.read(), 200)
 
 
