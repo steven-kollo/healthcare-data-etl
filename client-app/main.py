@@ -1,4 +1,3 @@
-from oauth2client.client import GoogleCredentials
 from googleapiclient import discovery
 from flask import Flask, flash, request, abort, make_response, render_template
 from werkzeug.utils import secure_filename
@@ -20,18 +19,22 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 @app.route('/trigger_airflow', methods=['GET'])
 def trigger():
-    credentials = GoogleCredentials.get_application_default()
-
-    service = discovery.build('compute', 'v1', credentials=credentials)
+    compute = discovery.build('compute', 'v1')
 
     project = 'uber-etl-386321'
     zone = 'us-central1-a'
     instance = 'healthcare-etl-instance'
 
-    # request = service.instances().get(project=project, zone=zone, instance=instance)
-    # response = request.execute()
-    service.instances().setMetadata(project=project, zone=zone,
-                                    instance=instance, test='sonya').execute()
+    instance_data = compute.instances().get(
+        project=project, zone=zone, instance=instance).execute()
+
+    body = {
+        "fingerprint": instance_data["metadata"]["fingerprint"],
+        "items": []
+    }
+
+    compute.instances().setMetadata(project=project, zone=zone,
+                                    instance=instance, body=body).execute()
 
     return make_response('nice', 200)
 
