@@ -19,10 +19,12 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 @app.route('/trigger_airflow', methods=['GET'])
 def trigger():
-    command = 'gcloud composer environments run healthcare --location us-central1 dags trigger -- read_bucket_file'
-    subprocess.run([command], shell=True)
+    # command = 'gcloud composer environments run healthcare --location us-central1 dags trigger -- read_bucket_file'
+    command = 'echo "Works!"'
+    res = subprocess.check_output(
+        [command], shell=True).decode('utf-8')
 
-    return make_response('nice', 200)
+    return make_response(res, 200)
 
 
 @app.route('/upload', methods=['POST'])
