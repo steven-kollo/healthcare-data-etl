@@ -19,7 +19,7 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 @app.route('/trigger_airflow', methods=['GET'])
 def trigger():
-    command = 'touch test.txt'
+    command = 'gcloud composer environments run healthcare --location us-central1 dags trigger -- read_bucket_file'
     subprocess.run([command], shell=True)
 
     return make_response('nice', 200)
