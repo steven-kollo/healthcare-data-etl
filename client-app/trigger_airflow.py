@@ -7,34 +7,21 @@ IAM_SCOPE = 'https://www.googleapis.com/auth/iam'
 OAUTH_TOKEN_URI = 'https://www.googleapis.com/oauth2/v4/token'
 # If you are using the stable API, set this value to False
 # For more info about Airflow APIs see https://cloud.google.com/composer/docs/access-airflow-api
-USE_EXPERIMENTAL_API = True
+USE_EXPERIMENTAL_API = False
 
 
 def trigger_dag(data, context=None):
-    """Makes a POST request to the Composer DAG Trigger API
-
-    When called via Google Cloud Functions (GCF),
-    data and context are Background function parameters.
-
-    For more info, refer to
-    https://cloud.google.com/functions/docs/writing/background#functions_background_parameters-python
-
-    To call this function from a Python script, omit the ``context`` argument
-    and pass in a non-null value for the ``data`` argument.
-
-    This function is currently only compatible with Composer v1 environments.
-    """
 
     # Fill in with your Composer info here
     # Navigate to your webserver's login page and get this from the URL
     # Or use the script found at
     # https://github.com/GoogleCloudPlatform/python-docs-samples/blob/main/composer/rest/get_client_id.py
-    client_id = 'YOUR-CLIENT-ID'
+    client_id = 'client_id=422515295526-30mbhlbjr4osk24ov4eudutqdu2tf70a.apps.googleusercontent.com'
     # This should be part of your webserver's URL:
     # {tenant-project-id}.appspot.com
-    webserver_id = 'YOUR-TENANT-PROJECT'
+    webserver_id = 'xc5b7bfca930c2f4fp-tp'
     # The name of the DAG you wish to trigger
-    dag_name = 'composer_sample_trigger_response_dag'
+    dag_name = 'read_bucket_file'
 
     if USE_EXPERIMENTAL_API:
         endpoint = f'api/experimental/dags/{dag_name}/dag_runs'

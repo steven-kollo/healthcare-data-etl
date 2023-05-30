@@ -21,10 +21,12 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 def trigger():
     command = './trigger_airflow.sh'
     # command = 'echo "Works!"'
-    res = subprocess.check_output(
-        [command], shell=True).decode('utf-8')
+    process = subprocess.Popen([command], shell=True)
+    process.wait()
+    # res = subprocess.check_output(
+    #     [command], shell=True).decode('utf-8')
 
-    return make_response(res, 200)
+    return make_response('nice', 200)
 
 
 @app.route('/upload', methods=['POST'])
