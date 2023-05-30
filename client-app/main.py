@@ -19,12 +19,9 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 @app.route('/trigger_airflow', methods=['GET'])
 def trigger():
-    command = './trigger_airflow.sh'
-    # command = 'echo "Works!"'
+    command = 'gcloud compute instances add-metadata healthcare-etl-instance --zone=us-central1-a --metadata=test=sonya'
     process = subprocess.Popen([command], shell=True)
     process.wait()
-    # res = subprocess.check_output(
-    #     [command], shell=True).decode('utf-8')
 
     return make_response('nice', 200)
 
