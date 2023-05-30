@@ -10,6 +10,6 @@ curl "http://metadata.google.internal/computeMetadata/v1" -H "Metadata-Flavor: G
 # ADD
 gcloud compute instances add-metadata healthcare-etl-instance --zone=us-central1-a --metadata=test=1488
 
-
-gcloud compute instances describe healthcare-etl-instance \
+# READ
+gcloud compute instances describe --zone=us-central1-a healthcare-etl-instance \
   --format='value[](metadata.items.test)'

@@ -1,8 +1,9 @@
+from oauth2client.client import GoogleCredentials
+from googleapiclient import discovery
 from flask import Flask, flash, request, abort, make_response, render_template
 from werkzeug.utils import secure_filename
 from bucket_script import upload_blob
-import subprocess
-import googleapiclient
+
 
 UPLOAD_FOLDER = './uploads'
 ALLOWED_EXTENSIONS = {'csv', 'xls', 'xlsm', 'xlsx'}
@@ -19,26 +20,19 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 @app.route('/trigger_airflow', methods=['GET'])
 def trigger():
-    # command = 'gcloud compute instances add-metadata healthcare-etl-instance --zone=us-central1-a --metadata=test=sonya'
-    # process = subprocess.Popen([command], shell=True)
-    # process.wait()
+    credentials = GoogleCredentials.get_application_default()
 
-    compute = googleapiclient.discovery.build('compute', 'v1')
+    service = discovery.build('compute', 'v1', credentials=credentials)
 
-    project = "uber-etl-386321"
-    zone = "us-central1-a"
-    instance_name = "healthcare-etl-instance"
+    project = 'uber-etl-386321'
+    zone = 'us-central1-a'
+    instance = 'healthcare-etl-instance'
 
-    # instance_data = compute.instances().get(project=project, zone=zone,
-    #                                         instance=instance_name).execute()
+    # request = service.instances().get(project=project, zone=zone, instance=instance)
+    # response = request.execute()
+    service.instances().setMetadata(project=project, zone=zone,
+                                    instance=instance, test='sonya').execute()
 
-    # body = {
-    #     "fingerprint": instance_data["metadata"]["fingerprint"],
-    #     "items": []
-    # }
-
-    compute.instances().setMetadata(project=project, zone=zone,
-                                    instance=instance_name, test='sonya').execute()
     return make_response('nice', 200)
 
 
