@@ -1,5 +1,5 @@
 from googleapiclient import discovery
-from flask import Flask, flash, request, abort, make_response, render_template
+from flask import Flask, flash, request, make_response, render_template
 from werkzeug.utils import secure_filename
 from bucket_script import upload_blob
 
@@ -32,6 +32,7 @@ def trigger():
         "fingerprint": instance_data["metadata"]["fingerprint"],
         "items": [{
             "key": "test",
+            # TODO to uploaded file names
             "value": "sonya"
         }]
     }

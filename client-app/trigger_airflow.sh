@@ -1,15 +1,17 @@
 #!/bin/bash
-echo "Triggering Airflow started"
-touch test.txt
-# gcloud composer environments run healthcare --location us-central1 dags trigger -- read_bucket_file
-echo "Triggering Airflow finished"
+while true
+do 
+    str1="$(gcloud compute instances describe --zone=us-central1-a healthcare-etl-instance \
+        --format='value[](metadata.items.test)')"
+    str2="sonya"
+    
+    if [ "$str1" == "$str2" ]; then
+        echo "Changed"
+        gcloud composer environments run healthcare --location us-central1 dags trigger -- read_bucket_file
+        gcloud compute instances add-metadata healthcare-etl-instance --zone=us-central1-a --metadata=test=test
+    else
+        echo "Nothing changed"
+        sleep 1
+    fi   
+done
 
-curl "http://metadata.google.internal/computeMetadata/v1" -H "Metadata-Flavor: Google"
-
-
-# ADD
-gcloud compute instances add-metadata healthcare-etl-instance --zone=us-central1-a --metadata=test=1488
-
-# READ
-gcloud compute instances describe --zone=us-central1-a healthcare-etl-instance \
-  --format='value[](metadata.items.test)'
