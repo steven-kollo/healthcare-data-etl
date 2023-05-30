@@ -30,7 +30,10 @@ def trigger():
 
     body = {
         "fingerprint": instance_data["metadata"]["fingerprint"],
-        "items": []
+        "items": [{
+            "key": "test",
+            "value": "sonya"
+        }]
     }
 
     compute.instances().setMetadata(project=project, zone=zone,
