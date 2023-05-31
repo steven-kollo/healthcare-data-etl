@@ -35,7 +35,7 @@ def add_file_to_metadata(filename):
     # items = rebuild_items_list(
     #     [{"key": "key", "value": "f"}, {"key": "key2", "value": "f"}], new_item)
     arr = [{"key": "key", "value": "f"}, {"key": "key2", "value": "f"}]
-    arr2 = [generate_metadata_item(filename)]
+    arr2 = [{"key": filename, "value": "f"}]
     sum_arr = arr + arr2
     body = {
         "fingerprint": instance_data["metadata"]["fingerprint"],
