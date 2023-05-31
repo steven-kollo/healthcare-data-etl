@@ -6,14 +6,6 @@ from bucket_script import upload_blob
 UPLOAD_FOLDER = './uploads'
 ALLOWED_EXTENSIONS = {'csv', 'xls', 'xlsm', 'xlsx'}
 
-
-def generate_metadata_item(filename):
-    return {
-        "key": f"{filename}",
-        "value": "f"
-    }
-
-
 # def rebuild_items_list(items, new_item):
 #     rebuild_items = [new_item]
 #     # for item in items:
@@ -35,7 +27,7 @@ def add_file_to_metadata(filename):
     # items = rebuild_items_list(
     #     [{"key": "key", "value": "f"}, {"key": "key2", "value": "f"}], new_item)
     arr = [{"key": "key", "value": "f"}, {"key": "key2", "value": "f"}]
-    arr2 = [{"key": filename, "value": "f"}]
+    arr2 = [{"key": "filename", "value": "f"}]
     sum_arr = arr + arr2
     body = {
         "fingerprint": instance_data["metadata"]["fingerprint"],
