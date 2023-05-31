@@ -15,8 +15,7 @@ def generate_metadata_item(filename):
 
 
 def rebuild_items_list(items, new_item):
-
-    rebuild_items = new_item
+    rebuild_items = [new_item]
     for item in items:
         rebuild_items.append(item)
     return rebuild_items
