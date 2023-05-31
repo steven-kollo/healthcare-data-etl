@@ -47,7 +47,7 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 @app.route('/trigger_airflow', methods=['GET'])
 def trigger():
-    add_file_to_metadata('testtwo')
+    add_file_to_metadata('new-patients_q1-w1-2023.csv')
     return make_response('res', 200)
 
 
