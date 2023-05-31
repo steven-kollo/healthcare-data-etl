@@ -36,7 +36,7 @@ def add_file_to_metadata(filename):
         [{"key": "key", "value": "f"}, {"key": "key2", "value": "f"}], new_item)
     body = {
         "fingerprint": instance_data["metadata"]["fingerprint"],
-        "items": items
+        "items": [{"key": "key", "value": "f"}, {"key": "key2", "value": "f"}]
     }
 
     compute.instances().setMetadata(project=project, zone=zone,
