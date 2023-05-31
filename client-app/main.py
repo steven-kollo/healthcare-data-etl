@@ -7,39 +7,33 @@ UPLOAD_FOLDER = './uploads'
 ALLOWED_EXTENSIONS = {'csv', 'xls', 'xlsm', 'xlsx'}
 
 
-def rebuild_items_list(items):
-    items = list({'key': 'key', 'value': 'value'}, {
-                 'key2': 'key2', 'value2': 'value2'})
-    rebuild_items = []
+def generate_metadata_item(filename):
+    return {
+        "key": filename,
+        "value": "f"
+    }
+
+
+def rebuild_items_list(items, new_item):
+
+    rebuild_items = new_item
     for item in items:
-        rebuild_items_list.append(item)
+        rebuild_items.append(item)
     return rebuild_items
 
 
 def add_file_to_metadata(filename):
-    item = generate_metadata_item(filename)
+    new_item = generate_metadata_item(filename)
     compute = discovery.build('compute', 'v1')
-    items = []
     project = 'uber-etl-386321'
     zone = 'us-central1-a'
     instance = 'healthcare-etl-instance'
 
     instance_data = compute.instances().get(
         project=project, zone=zone, instance=instance).execute()
-    # current_items = instance_data["metadata"]["items"]
-    # try:
-    #     current_items = instance_data["metadata"]["items"]
-    #     current_items = list(
-    #         filter(lambda i: i['key'] != filename, items))
-    #     # for i in current_items:
-    #     #     items.append({
-    #     #         "key": i['key'],
-    #     #         "value": i['value']
-    #     #     })
-    #     # items.append(item)
-    # except:
-    #     items = [item]
-    items = rebuild_items_list(list(instance_data["metadata"]["items"]))
+
+    items = rebuild_items_list(
+        list(instance_data["metadata"]["items"]), new_item)
     body = {
         "fingerprint": instance_data["metadata"]["fingerprint"],
         "items": items
@@ -47,13 +41,6 @@ def add_file_to_metadata(filename):
 
     compute.instances().setMetadata(project=project, zone=zone,
                                     instance=instance, body=body).execute()
-
-
-def generate_metadata_item(filename):
-    return {
-        "key": filename,
-        "value": "f"
-    }
 
 
 def allowed_file(filename):
