@@ -10,7 +10,7 @@ ALLOWED_EXTENSIONS = {'csv', 'xls', 'xlsm', 'xlsx'}
 def add_file_to_metadata(filename):
     item = generate_metadata_item(filename)
     compute = discovery.build('compute', 'v1')
-
+    items = []
     project = 'uber-etl-386321'
     zone = 'us-central1-a'
     instance = 'healthcare-etl-instance'
@@ -18,9 +18,15 @@ def add_file_to_metadata(filename):
     instance_data = compute.instances().get(
         project=project, zone=zone, instance=instance).execute()
     try:
-        items = instance_data["metadata"]["items"]
-        items = list(
-            filter(lambda i: i['key'] != filename, items)).append(item)
+        current_items = instance_data["metadata"]["items"]
+        current_items = list(
+            filter(lambda i: i['key'] != filename, items))
+        for i in current_items:
+            items.append({
+                "key": i['key'],
+                "value": i['value']
+            })
+        items.append(item)
     except:
         items = [item]
 
