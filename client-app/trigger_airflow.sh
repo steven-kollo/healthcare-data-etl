@@ -10,7 +10,7 @@ do
         gcloud composer environments run healthcare --location us-central1 dags trigger -- read_bucket_file
         gcloud compute instances add-metadata healthcare-etl-instance --zone=us-central1-a --metadata=test=test
     else
-        echo "Nothing changed"
+        echo "$str1"
         sleep 1
     fi   
 done
