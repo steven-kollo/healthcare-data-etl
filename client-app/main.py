@@ -36,7 +36,7 @@ def add_file_to_metadata(filename):
     #     [{"key": "key", "value": "f"}, {"key": "key2", "value": "f"}], new_item)
     arr = list(
         filter(lambda i: i['key'] != filename, instance_data["metadata"]["items"]))
-    arr2 = [{"key": "key3", "value": "f"}]
+    arr2 = [{"key": filename, "value": "f"}]
     arr = arr + arr2
     body = {
         "fingerprint": instance_data["metadata"]["fingerprint"],
@@ -58,7 +58,8 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 @ app.route('/trigger_airflow', methods=['GET'])
 def trigger():
-    add_file_to_metadata('new-patients_q1-w1-2023.csv')
+    # add_file_to_metadata("new-patients_q1-w1-2023.csv")
+    add_file_to_metadata("test")
     return make_response('res', 200)
 
 
