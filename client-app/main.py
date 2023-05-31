@@ -18,11 +18,11 @@ def add_file_to_metadata(filename):
 
     instance_data = compute.instances().get(
         project=project, zone=zone, instance=instance).execute()
-    items = instance_data["metadata"]["items"].append(item)
+    # items = instance_data["metadata"]["items"].append(item)
 
     body = {
         "fingerprint": instance_data["metadata"]["fingerprint"],
-        "items": [item]
+        "items": []
     }
 
     compute.instances().setMetadata(project=project, zone=zone,
@@ -32,7 +32,7 @@ def add_file_to_metadata(filename):
 def generate_metadata_item(filename):
     return {
         "key": filename,
-        "value": False
+        "value": 0
     }
 
 
