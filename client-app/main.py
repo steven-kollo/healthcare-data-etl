@@ -2,7 +2,6 @@ from googleapiclient import discovery
 from flask import Flask, flash, request, make_response, render_template
 from werkzeug.utils import secure_filename
 from bucket_script import upload_blob
-from read_meta import test_func
 
 UPLOAD_FOLDER = './uploads'
 ALLOWED_EXTENSIONS = {'csv', 'xls', 'xlsm', 'xlsx'}
@@ -23,8 +22,7 @@ def add_file_to_metadata(filename):
 
     body = {
         "fingerprint": instance_data["metadata"]["fingerprint"],
-        # "items": list(filter(lambda i: i['key'] != "item2", items))
-        "items": []
+        "items": list(filter(lambda i: i['key'] != "item2", items))
     }
 
     compute.instances().setMetadata(project=project, zone=zone,
