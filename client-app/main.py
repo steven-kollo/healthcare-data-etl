@@ -34,9 +34,11 @@ def add_file_to_metadata(filename):
     #     filter(lambda i: i['key'] != filename, instance_data["metadata"]["items"]))
     # items = rebuild_items_list(
     #     [{"key": "key", "value": "f"}, {"key": "key2", "value": "f"}], new_item)
+    arr = [{"key": "key", "value": "f"}, {"key": "key2", "value": "f"}]
+    arr.append({"key": "key3", "value": "f"})
     body = {
         "fingerprint": instance_data["metadata"]["fingerprint"],
-        "items": [{"key": "key", "value": "f"}, {"key": "key2", "value": "f"}]
+        "items": arr
     }
 
     compute.instances().setMetadata(project=project, zone=zone,
