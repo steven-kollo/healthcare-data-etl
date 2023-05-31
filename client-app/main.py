@@ -49,7 +49,7 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 @app.route('/trigger_airflow', methods=['GET'])
 def trigger():
-    add_file_to_metadata('filename')
+    add_file_to_metadata('test')
     return make_response('nice', 200)
 
 
