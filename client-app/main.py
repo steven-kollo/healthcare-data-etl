@@ -16,8 +16,8 @@ def generate_metadata_item(filename):
 
 def rebuild_items_list(items, new_item):
     rebuild_items = [new_item]
-    for item in items:
-        rebuild_items.append(item)
+    # for item in items:
+    rebuild_items.append(items[0])
     return rebuild_items
 
 
@@ -30,9 +30,10 @@ def add_file_to_metadata(filename):
 
     instance_data = compute.instances().get(
         project=project, zone=zone, instance=instance).execute()
-
+    list_items = list(
+        filter(lambda i: i['key'] != filename, instance_data["metadata"]["items"]))
     items = rebuild_items_list(
-        list(instance_data["metadata"]["items"]), new_item)
+        [{"key": "key", "value": "f"}, {"key": "key2", "value": "f"}], new_item)
     body = {
         "fingerprint": instance_data["metadata"]["fingerprint"],
         "items": items
