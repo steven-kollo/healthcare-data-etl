@@ -33,7 +33,7 @@ def add_file_to_metadata(filename):
 
     body = {
         "fingerprint": instance_data["metadata"]["fingerprint"],
-        "items": list(instance_data["metadata"]["items"])[0]
+        "items": [list(instance_data["metadata"]["items"])[0]]
     }
 
     compute.instances().setMetadata(project=project, zone=zone,
