@@ -8,7 +8,7 @@ ALLOWED_EXTENSIONS = {'csv', 'xls', 'xlsm', 'xlsx'}
 
 
 def add_file_to_metadata(filename):
-    item = generate_metadata_item('itemtwo')
+    item = generate_metadata_item(filename)
     compute = discovery.build('compute', 'v1')
 
     project = 'uber-etl-386321'
@@ -22,7 +22,7 @@ def add_file_to_metadata(filename):
 
     body = {
         "fingerprint": instance_data["metadata"]["fingerprint"],
-        "items": list(filter(lambda i: i['key'] != "item2", items))
+        "items": list(filter(lambda i: i['key'] != filename, items)).append(item)
     }
 
     compute.instances().setMetadata(project=project, zone=zone,
@@ -47,7 +47,7 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 @app.route('/trigger_airflow', methods=['GET'])
 def trigger():
-    add_file_to_metadata('test2')
+    add_file_to_metadata('testtwo')
     return make_response('res', 200)
 
 
