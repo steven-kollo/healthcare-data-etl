@@ -7,22 +7,7 @@ UPLOAD_FOLDER = './uploads'
 ALLOWED_EXTENSIONS = {'csv', 'xls', 'xlsm', 'xlsx'}
 
 
-# def generate_metadata_item(filename):
-#     return {
-#         "key": filename,
-#         "value": "f"
-#     }
-
-
-# def rebuild_items_list(items, new_item):
-#     rebuild_items = [new_item]
-#     # for item in items:
-#     rebuild_items.append(items[0])
-#     return rebuild_items
-
-
 def add_file_to_metadata(filename):
-    # new_item = generate_metadata_item(filename)
     compute = discovery.build('compute', 'v1')
     project = 'uber-etl-386321'
     zone = 'us-central1-a'
@@ -54,7 +39,7 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 @ app.route('/trigger_airflow', methods=['GET'])
 def trigger():
-    add_file_to_metadata("new-patients_q1-w1-2023.csv")
+    add_file_to_metadata("new-patients_q1-w1-2023")
     # add_file_to_metadata("test")
     return make_response('res', 200)
 
