@@ -6,6 +6,14 @@ from bucket_script import upload_blob
 UPLOAD_FOLDER = './uploads'
 ALLOWED_EXTENSIONS = {'csv', 'xls', 'xlsm', 'xlsx'}
 
+
+# def generate_metadata_item(filename):
+#     return {
+#         "key": filename,
+#         "value": "f"
+#     }
+
+
 # def rebuild_items_list(items, new_item):
 #     rebuild_items = [new_item]
 #     # for item in items:
@@ -26,12 +34,13 @@ def add_file_to_metadata(filename):
     #     filter(lambda i: i['key'] != filename, instance_data["metadata"]["items"]))
     # items = rebuild_items_list(
     #     [{"key": "key", "value": "f"}, {"key": "key2", "value": "f"}], new_item)
-    arr = [{"key": "key", "value": "f"}, {"key": "key2", "value": "f"}]
-    arr2 = [{"key": "filename", "value": "f"}]
-    sum_arr = arr + arr2
+    arr = list(
+        filter(lambda i: i['key'] != filename, instance_data["metadata"]["items"]))
+    arr2 = [{"key": "key3", "value": "f"}]
+    arr = arr + arr2
     body = {
         "fingerprint": instance_data["metadata"]["fingerprint"],
-        "items": sum_arr
+        "items": arr
     }
 
     compute.instances().setMetadata(project=project, zone=zone,
@@ -47,13 +56,13 @@ app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 
-@app.route('/trigger_airflow', methods=['GET'])
+@ app.route('/trigger_airflow', methods=['GET'])
 def trigger():
     add_file_to_metadata('new-patients_q1-w1-2023.csv')
     return make_response('res', 200)
 
 
-@app.route('/upload', methods=['POST'])
+@ app.route('/upload', methods=['POST'])
 def upload():
     period = request.args.get('period')
     label = request.args.get('label')
@@ -69,6 +78,6 @@ def upload():
         return make_response(file.read(), 200)
 
 
-@app.route('/', methods=['POST', 'GET'])
+@ app.route('/', methods=['POST', 'GET'])
 def render():
     return render_template('index.html')
