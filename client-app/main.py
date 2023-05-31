@@ -7,11 +7,11 @@ UPLOAD_FOLDER = './uploads'
 ALLOWED_EXTENSIONS = {'csv', 'xls', 'xlsm', 'xlsx'}
 
 
-# def generate_metadata_item(filename):
-#     return {
-#         "key": filename,
-#         "value": "f"
-#     }
+def generate_metadata_item(filename):
+    return {
+        "key": f"{filename}",
+        "value": "f"
+    }
 
 
 # def rebuild_items_list(items, new_item):
@@ -35,10 +35,11 @@ def add_file_to_metadata(filename):
     # items = rebuild_items_list(
     #     [{"key": "key", "value": "f"}, {"key": "key2", "value": "f"}], new_item)
     arr = [{"key": "key", "value": "f"}, {"key": "key2", "value": "f"}]
-    arr.append({"key": "key3", "value": "f"})
+    arr2 = [generate_metadata_item(filename)]
+    sum_arr = arr + arr2
     body = {
         "fingerprint": instance_data["metadata"]["fingerprint"],
-        "items": arr
+        "items": sum_arr
     }
 
     compute.instances().setMetadata(project=project, zone=zone,
