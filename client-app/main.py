@@ -16,12 +16,12 @@ def add_file_to_metadata(filename):
     instance_data = compute.instances().get(
         project=project, zone=zone, instance=instance).execute()
 
-    arr = list(
+    metadata_items = list(
         filter(lambda i: i['key'] != filename, instance_data["metadata"]["items"]))
 
     body = {
         "fingerprint": instance_data["metadata"]["fingerprint"],
-        "items": arr + [{"key": filename, "value": "f"}]
+        "items": metadata_items + [{"key": filename, "value": "f"}]
     }
 
     compute.instances().setMetadata(project=project, zone=zone,
@@ -57,6 +57,7 @@ def upload():
         formated_filename = f'{label}_{period}.{filename.rsplit(".", 1)[1].lower()}'
         upload_blob(file_name=formated_filename,
                     file=file)
+        add_file_to_metadata(f"{label}_{period}")
         return make_response(file.read(), 200)
 
 
