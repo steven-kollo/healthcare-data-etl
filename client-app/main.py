@@ -7,22 +7,22 @@ UPLOAD_FOLDER = './uploads'
 ALLOWED_EXTENSIONS = {'csv', 'xls', 'xlsm', 'xlsx'}
 
 
-def generate_metadata_item(filename):
-    return {
-        "key": filename,
-        "value": "f"
-    }
+# def generate_metadata_item(filename):
+#     return {
+#         "key": filename,
+#         "value": "f"
+#     }
 
 
-def rebuild_items_list(items, new_item):
-    rebuild_items = [new_item]
-    # for item in items:
-    rebuild_items.append(items[0])
-    return rebuild_items
+# def rebuild_items_list(items, new_item):
+#     rebuild_items = [new_item]
+#     # for item in items:
+#     rebuild_items.append(items[0])
+#     return rebuild_items
 
 
 def add_file_to_metadata(filename):
-    new_item = generate_metadata_item(filename)
+    # new_item = generate_metadata_item(filename)
     compute = discovery.build('compute', 'v1')
     project = 'uber-etl-386321'
     zone = 'us-central1-a'
@@ -30,10 +30,10 @@ def add_file_to_metadata(filename):
 
     instance_data = compute.instances().get(
         project=project, zone=zone, instance=instance).execute()
-    list_items = list(
-        filter(lambda i: i['key'] != filename, instance_data["metadata"]["items"]))
-    items = rebuild_items_list(
-        [{"key": "key", "value": "f"}, {"key": "key2", "value": "f"}], new_item)
+    # list_items = list(
+    #     filter(lambda i: i['key'] != filename, instance_data["metadata"]["items"]))
+    # items = rebuild_items_list(
+    #     [{"key": "key", "value": "f"}, {"key": "key2", "value": "f"}], new_item)
     body = {
         "fingerprint": instance_data["metadata"]["fingerprint"],
         "items": [{"key": "key", "value": "f"}, {"key": "key2", "value": "f"}]
