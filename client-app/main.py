@@ -17,13 +17,14 @@ def add_file_to_metadata(filename):
 
     instance_data = compute.instances().get(
         project=project, zone=zone, instance=instance).execute()
-
-    items = instance_data["metadata"]["items"]
+    try:
+        items = list(filter(lambda i: i['key'] != filename, items))
+    except:
+        items = [item]
 
     body = {
         "fingerprint": instance_data["metadata"]["fingerprint"],
-        # "items": list(filter(lambda i: i['key'] != filename, items)).append(item)
-        "items": []
+        "items": items
     }
 
     compute.instances().setMetadata(project=project, zone=zone,
