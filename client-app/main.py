@@ -2,7 +2,7 @@ from googleapiclient import discovery
 from flask import Flask, flash, request, make_response, render_template
 from werkzeug.utils import secure_filename
 from bucket_script import upload_blob
-
+from read_meta import test_func
 
 UPLOAD_FOLDER = './uploads'
 ALLOWED_EXTENSIONS = {'csv', 'xls', 'xlsm', 'xlsx'}
@@ -19,6 +19,7 @@ def add_file_to_metadata(filename):
 
     instance_data = compute.instances().get(
         project=project, zone=zone, instance=instance).execute()
+    return instance_data["metadata"]["items"]
     # items = instance_data["metadata"]["items"].append(item)
 
     body = {
@@ -33,7 +34,7 @@ def add_file_to_metadata(filename):
 def generate_metadata_item(filename):
     return {
         "key": filename,
-        "value": 'f'
+        "value": "f"
     }
 
 
@@ -48,8 +49,9 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 @app.route('/trigger_airflow', methods=['GET'])
 def trigger():
-    add_file_to_metadata('test2')
-    return make_response('nice', 200)
+    # add_file_to_metadata('test2')
+    res = test_func()
+    return make_response(res, 200)
 
 
 @app.route('/upload', methods=['POST'])
