@@ -18,8 +18,9 @@ def add_file_to_metadata(filename):
     instance_data = compute.instances().get(
         project=project, zone=zone, instance=instance).execute()
     try:
+        items = instance_data["metadata"]["items"]
         items = list(
-            filter(lambda i: i['key'] != filename, instance_data["metadata"]["items"]))
+            filter(lambda i: i['key'] != filename, items)).append(item)
     except:
         items = [item]
 
