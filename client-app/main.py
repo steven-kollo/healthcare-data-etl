@@ -9,8 +9,7 @@ ALLOWED_EXTENSIONS = {'csv', 'xls', 'xlsm', 'xlsx'}
 
 
 def add_file_to_metadata(filename):
-    item1 = generate_metadata_item('item1')
-    item2 = generate_metadata_item('item2')
+    item = generate_metadata_item('itemtwo')
     compute = discovery.build('compute', 'v1')
 
     project = 'uber-etl-386321'
@@ -24,7 +23,8 @@ def add_file_to_metadata(filename):
 
     body = {
         "fingerprint": instance_data["metadata"]["fingerprint"],
-        "items": list(items)
+        # "items": list(filter(lambda i: i['key'] != "item2", items))
+        "items": []
     }
 
     compute.instances().setMetadata(project=project, zone=zone,
