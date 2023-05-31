@@ -17,22 +17,23 @@ def add_file_to_metadata(filename):
 
     instance_data = compute.instances().get(
         project=project, zone=zone, instance=instance).execute()
+    current_items = instance_data["metadata"]["items"]
     try:
         current_items = instance_data["metadata"]["items"]
         current_items = list(
             filter(lambda i: i['key'] != filename, items))
-        for i in current_items:
-            items.append({
-                "key": i['key'],
-                "value": i['value']
-            })
-        items.append(item)
+        # for i in current_items:
+        #     items.append({
+        #         "key": i['key'],
+        #         "value": i['value']
+        #     })
+        # items.append(item)
     except:
         items = [item]
 
     body = {
         "fingerprint": instance_data["metadata"]["fingerprint"],
-        "items": items
+        "items": instance_data["metadata"]["items"][0]
     }
 
     compute.instances().setMetadata(project=project, zone=zone,
