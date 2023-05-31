@@ -19,12 +19,12 @@ def add_file_to_metadata(filename):
 
     instance_data = compute.instances().get(
         project=project, zone=zone, instance=instance).execute()
-    return instance_data["metadata"]["items"]
-    # items = instance_data["metadata"]["items"].append(item)
+
+    items = instance_data["metadata"]["items"]
 
     body = {
         "fingerprint": instance_data["metadata"]["fingerprint"],
-        "items": [item1, item2]
+        "items": items
     }
 
     compute.instances().setMetadata(project=project, zone=zone,
@@ -49,9 +49,8 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 @app.route('/trigger_airflow', methods=['GET'])
 def trigger():
-    # add_file_to_metadata('test2')
-    res = test_func()
-    return make_response(res, 200)
+    add_file_to_metadata('test2')
+    return make_response('res', 200)
 
 
 @app.route('/upload', methods=['POST'])
