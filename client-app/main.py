@@ -7,6 +7,15 @@ UPLOAD_FOLDER = './uploads'
 ALLOWED_EXTENSIONS = {'csv', 'xls', 'xlsm', 'xlsx'}
 
 
+def rebuild_items_list(items):
+    items = list({'key': 'key', 'value': 'value'}, {
+                 'key2': 'key2', 'value2': 'value2'})
+    rebuild_items = []
+    for item in items:
+        rebuild_items_list.append(item)
+    return rebuild_items
+
+
 def add_file_to_metadata(filename):
     item = generate_metadata_item(filename)
     compute = discovery.build('compute', 'v1')
@@ -17,23 +26,23 @@ def add_file_to_metadata(filename):
 
     instance_data = compute.instances().get(
         project=project, zone=zone, instance=instance).execute()
-    current_items = instance_data["metadata"]["items"]
-    try:
-        current_items = instance_data["metadata"]["items"]
-        current_items = list(
-            filter(lambda i: i['key'] != filename, items))
-        # for i in current_items:
-        #     items.append({
-        #         "key": i['key'],
-        #         "value": i['value']
-        #     })
-        # items.append(item)
-    except:
-        items = [item]
-
+    # current_items = instance_data["metadata"]["items"]
+    # try:
+    #     current_items = instance_data["metadata"]["items"]
+    #     current_items = list(
+    #         filter(lambda i: i['key'] != filename, items))
+    #     # for i in current_items:
+    #     #     items.append({
+    #     #         "key": i['key'],
+    #     #         "value": i['value']
+    #     #     })
+    #     # items.append(item)
+    # except:
+    #     items = [item]
+    items = rebuild_items_list(list(instance_data["metadata"]["items"]))
     body = {
         "fingerprint": instance_data["metadata"]["fingerprint"],
-        "items": [list(instance_data["metadata"]["items"])[0]]
+        "items": items
     }
 
     compute.instances().setMetadata(project=project, zone=zone,
