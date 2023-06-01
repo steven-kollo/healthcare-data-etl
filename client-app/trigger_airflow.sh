@@ -1,12 +1,19 @@
 #!/bin/bash
-arr="$(gcloud compute instances describe --zone=us-central1-a healthcare-etl-instance --format='value[](metadata.items)')"
-
-for obj in $arr; do
-    echo $obj 
-    echo "-"
+str="[$(gcloud compute instances describe --zone=us-central1-a healthcare-etl-instance --format='value[](metadata.items)')]"
+json=`echo "$str" | sed $'s/\'/"/g' | sed $'s/\;/,/g'`
+for row in $(echo "${json}" | jq -r '.[] | @base64'); do
+    _jq() {
+     echo ${row} | base64 --decode | jq -r ${2}
+    }
+   echo $(_jq '.key')
 done
 
-
+# | python3 -c "import sys, json; print(json.load(sys.stdin)['name'])"
+# echo "$arr"
+# for obj in $arr; do
+#     echo $obj 
+#     echo "-"
+# done
 # while true
 # do 
 #     str1="$(gcloud compute instances describe --zone=us-central1-a healthcare-etl-instance \
