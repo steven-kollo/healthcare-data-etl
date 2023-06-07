@@ -5,7 +5,7 @@ from datetime import timedelta
 from airflow import DAG
 from airflow.operators.python_operator import PythonOperator
 from airflow.utils.dates import days_ago
-
+from airflow.models.param import Param
 
 default_args = {
     'owner': 'airflow',
@@ -43,7 +43,8 @@ def read_csv_file(**kwargs):
 
 
 def parse_file_name(**kwargs):
-    file_name = "why-us_q1-w1-2023.csv"
+    dag_run = kwargs.get('dag_run')
+    file_name = f"{dag_run.conf['filename']}.csv"
     file_name.split('.')
     report_type = file_name.split('.')[0].split('_')[0]
     source_format = file_name.split('.')[1]
@@ -63,12 +64,14 @@ with DAG(
     'read_bucket_file',
     default_args=default_args,
     description='Read CSV file inside the bucket',
-    schedule_interval=timedelta(days=1),
+    schedule_interval=None,
     start_date=days_ago(2),
     tags=['Read'],
+    catchup=False,
     params={
-        "filename": Param(30, type="string", minimum=0, maximum=30),
+        "filename": Param("", type="string")
     }
+
 ) as dag:
     parse_file_name_task = PythonOperator(
         task_id='parse_file_name_task', python_callable=parse_file_name, dag=dag)
