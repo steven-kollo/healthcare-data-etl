@@ -66,6 +66,9 @@ with DAG(
     schedule_interval=timedelta(days=1),
     start_date=days_ago(2),
     tags=['Read'],
+    params={
+        "filename": Param(30, type="string", minimum=0, maximum=30),
+    }
 ) as dag:
     parse_file_name_task = PythonOperator(
         task_id='parse_file_name_task', python_callable=parse_file_name, dag=dag)
