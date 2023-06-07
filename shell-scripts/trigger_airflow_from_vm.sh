@@ -2,6 +2,7 @@
 str="[$(gcloud compute instances describe --zone=us-central1-a healthcare-etl-instance --format='value[](metadata.items)')]"
 json=`echo "$str" | sed $'s/\'/"/g' | sed $'s/\;/,/g'`
 for row in $(echo "${json}" | jq -r '.[] | @base64'); do
+
     _jq() {
      echo ${row} | base64 --decode | jq -r ${2}
     }
