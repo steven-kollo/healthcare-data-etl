@@ -80,7 +80,7 @@ def load_raw_to_bq(**kwargs):
 with DAG(
     'read_bucket_file',
     default_args=default_args,
-    description='Read CSV file inside the bucket',
+    description='Read CSV file inside the bucket and push data as json to the BigQuery raw level',
     schedule_interval=None,
     start_date=days_ago(2),
     tags=['Read'],
