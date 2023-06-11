@@ -1,6 +1,7 @@
 import pandas as pd
 from io import BytesIO
 from google.cloud import storage
+from google.cloud import bigquery
 from datetime import timedelta
 from airflow import DAG
 from airflow.operators.python_operator import PythonOperator
@@ -16,30 +17,6 @@ default_args = {
     'retries': 1,
     'retry_delay': timedelta(minutes=5),
 }
-
-
-def read_csv_file(**kwargs):
-    metadata = kwargs['ti'].xcom_pull(
-        task_ids='parse_file_name_task', key='metadata')
-    bucket_name = "healthcare-data-bucket"
-    blob_name = metadata['file_name']
-    storage_client = storage.Client()
-    bucket = storage_client.bucket(bucket_name)
-    blob = bucket.blob(blob_name)
-    # TODO detect number of columns
-    column_names = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']
-    binary_stream = blob.download_as_string()
-    df = pd.read_csv(BytesIO(binary_stream), sep=',',
-                     header=None, names=column_names)
-    return {
-        'db': 'weekly_db',
-        'source_format': metadata['source_format'],
-        'report_type': metadata['report_type'],
-        'week': metadata['week'],
-        'qtr': metadata['qtr'],
-        'year': metadata['year'],
-        'data': df.to_json(orient='records', lines=True)
-    }
 
 
 def parse_file_name(**kwargs):
@@ -60,6 +37,46 @@ def parse_file_name(**kwargs):
     kwargs['ti'].xcom_push(key='metadata', value=metadata)
 
 
+def read_csv_file(**kwargs):
+    metadata = kwargs['ti'].xcom_pull(
+        task_ids='parse_file_name_task', key='metadata')
+    bucket_name = "healthcare-data-bucket"
+    blob_name = metadata['file_name']
+    storage_client = storage.Client()
+    bucket = storage_client.bucket(bucket_name)
+    blob = bucket.blob(blob_name)
+    column_names = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L",
+                    "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"]
+    binary_stream = blob.download_as_string()
+    df = pd.read_csv(BytesIO(binary_stream), sep=',',
+                     header=None, names=column_names).dropna(axis=1, how='all')
+    json_to_load = {
+        "db": "raw_json_data",
+        "source_format": "csv",
+        "report_type": "why_us",
+        "week": 1,
+        "qtr": 1,
+        "year": 2023,
+        "data": df.to_json(orient="records").replace("/", "").replace("\\", "")
+    }
+    json_to_load['db']
+    kwargs['ti'].xcom_push(key='json', value=json_to_load)
+
+
+def load_raw_to_bq(**kwargs):
+    client = bigquery.Client()
+    json = kwargs['ti'].xcom_pull(
+        task_ids='read_csv_task', key='json_to_load')
+
+    INSERT_ROWS_QUERY = (
+        f"INSERT {json['db']}.{json['report_type']} VALUES "
+        f"('{json['week']}-{json['qtr']}-{json['year']}', '{json['data']}');"
+    )
+    query_job = client.query(INSERT_ROWS_QUERY)  # API request
+    result = query_job.result()
+    return result
+
+
 with DAG(
     'read_bucket_file',
     default_args=default_args,
@@ -77,6 +94,7 @@ with DAG(
         task_id='parse_file_name_task', python_callable=parse_file_name, dag=dag)
     read_csv_task = PythonOperator(
         task_id='read_csv_task', python_callable=read_csv_file, dag=dag)
+    load_raw_to_bq_task = PythonOperator(
+        task_id='load_raw_to_bq_task', python_callable=load_raw_to_bq, dag=dag)
 
-
-parse_file_name_task >> read_csv_task
+parse_file_name_task >> read_csv_task >> load_raw_to_bq_task
