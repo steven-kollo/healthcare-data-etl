@@ -43,7 +43,9 @@ def read_csv_file(**kwargs):
     bucket = storage_client.bucket(bucket_name)
     blob = bucket.blob(blob_name)
     column_names = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L",
-                    "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"]
+                    "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z",
+                    "AA", "AB", "AC", "AD", "AE", "AF", "AG", "AH", "AI", "AJ", "AK", "AL",
+                    "AM", "AN", "AO", "AP", "AQ", "AR", "AS", "AT", "AU", "AV", "AW", "AX", "AY", "AZ"]
     binary_stream = blob.download_as_string()
     df = pd.read_csv(BytesIO(binary_stream), sep=',',
                      header=None, names=column_names).dropna(axis=1, how='all')
