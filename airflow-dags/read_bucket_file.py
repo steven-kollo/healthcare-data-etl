@@ -11,9 +11,6 @@ from airflow.models.param import Param
 default_args = {
     'owner': 'airflow',
     'depends_on_past': False,
-    'email': ['airflow@example.com'],
-    'email_on_failure': False,
-    'email_on_retry': False,
     'retries': 1,
     'retry_delay': timedelta(minutes=5),
 }
@@ -52,11 +49,11 @@ def read_csv_file(**kwargs):
                      header=None, names=column_names).dropna(axis=1, how='all')
     json_to_load = {
         "db": "raw_json_data",
-        "source_format": "csv",
-        "report_type": "why_us",
-        "week": 1,
-        "qtr": 1,
-        "year": 2023,
+        "source_format": metadata["source_format"],
+        "report_type": metadata["report_type"],
+        "week": metadata["week"],
+        "qtr": metadata["qtr"],
+        "year": metadata["year"],
         "data": df.to_json(orient="records").replace("/", "").replace("\\", "")
     }
     json_to_load['db']
@@ -69,10 +66,10 @@ def load_raw_to_bq(**kwargs):
         task_ids='read_csv_task', key='json_to_load')
 
     INSERT_ROWS_QUERY = (
-        f"INSERT {json['db']}.{json['report_type']} VALUES "
+        f"INSERT {json['db']}.{json['report_type']} VALUES"
         f"('{json['week']}-{json['qtr']}-{json['year']}', '{json['data']}');"
     )
-    query_job = client.query(INSERT_ROWS_QUERY)  # API request
+    query_job = client.query(INSERT_ROWS_QUERY)
     result = query_job.result()
     return result
 

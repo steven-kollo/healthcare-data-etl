@@ -37,12 +37,6 @@ app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 
-@ app.route('/trigger_airflow', methods=['GET'])
-def trigger():
-    add_file_to_metadata("new-patients_q1-w1-2023")
-    return make_response('res', 200)
-
-
 @ app.route('/upload', methods=['POST'])
 def upload():
     period = request.args.get('period')
