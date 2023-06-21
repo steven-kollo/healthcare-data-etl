@@ -2,7 +2,8 @@ from google.cloud import bigquery
 client = bigquery.Client()
 
 
-def insert_clean_data(query):
+def insert_clean_data(df, dataset_name, period):
+    query = generate_insert_data_query(df, dataset_name, period)
     print(query)
     client.query(query)
 
