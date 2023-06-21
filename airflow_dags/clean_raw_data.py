@@ -1,12 +1,18 @@
-import pandas as pd
+from airflow_includes.modules.clean_raw.clean_raw import clean_df
+from airflow_includes.modules.clean_raw.insert_cleaned import insert_clean_data
 from google.cloud import bigquery
 from datetime import timedelta
 from airflow import DAG
 from airflow.operators.python_operator import PythonOperator, ShortCircuitOperator
 from airflow.utils.dates import days_ago
 from airflow.models.param import Param
+import pandas as pd
 
 client = bigquery.Client()
+DATASET_NAME_WHY_US = "whyus"  # TODO REPLACE WITH ENV VAR
+REQUIRED_FIELDS_WHY_US = ["branch", "whyus",
+                          "name"]
+
 default_args = {
     'owner': 'airflow',
     'depends_on_past': False,
@@ -19,7 +25,7 @@ def check_raw_data_completeness():
     period = get_unfinished_period()
     print(f"Least unfinished period is: {period}")
     CHECK_DATA_QUERY = (
-        f"SELECT * FROM `uber-etl-386321.raw_json_data.metadata` WHERE period={period}"
+        f"SELECT * FROM `raw_json_data.metadata` WHERE period={period}"
     )
     query_job = client.query(CHECK_DATA_QUERY)
     rows = query_job.result()
@@ -35,7 +41,7 @@ def check_raw_data_completeness():
 
 def get_unfinished_period():
     GET_LAST_PERIOD_QUERY = (
-        f"SELECT filename, MAX(period) AS period FROM `uber-etl-386321.column_metadata.metadata` GROUP BY filename"
+        f"SELECT filename, MAX(period) AS period FROM `column_metadata.metadata` GROUP BY filename"
     )
     query_job = client.query(GET_LAST_PERIOD_QUERY)
     rows = query_job.result()
@@ -74,7 +80,7 @@ def continue_if_complete_data(**kwargs):
 
 def query_raw_data_by_filename(filename, period):
     READ_RAW_JSON_DATA_QUERY = (
-        f"SELECT * FROM `uber-etl-386321.raw_json_data.{filename}` WHERE period={period}"
+        f"SELECT * FROM `raw_json_data.{filename}` WHERE period={period}"
     )
     query_job = client.query(READ_RAW_JSON_DATA_QUERY)
     rows = query_job.result()
@@ -89,45 +95,53 @@ def read_data_from_raw_level(**kwargs):
                  "transactions", "newpatients"]
     for filename in FILENAMES:
         data = query_raw_data_by_filename(filename, period)
-        # TODO pass each file data separately to xComs
-
-    # return str(data).replace(
-    #     "'[", "[").replace("]'", "]").replace("'", '"')
+        kwargs['ti'].xcom_push(key=filename, value=data)
 
 
-def whyus_transform_to_columns(**kwargs):
-    # TODO read from xComs and push to xComs by cleaned columns
+def whyus_clean(**kwargs):
+    period = kwargs['ti'].xcom_pull(
+        task_ids='check_raw_data_completeness_task')
     data = kwargs['ti'].xcom_pull(
         task_ids='read_data_from_raw_level_task', key='whyus')
 
+    df = pd.read_json(data)
+    df = df[df['G'].notnull()]
+    headers = df.iloc[0].tolist()
 
-def transactions_transform_to_columns(**kwargs):
+    cleaned_df = clean_df(df, headers, REQUIRED_FIELDS_WHY_US,
+                          DATASET_NAME_WHY_US)
+    print(cleaned_df)
+    insert_clean_data(cleaned_df, DATASET_NAME_WHY_US, period)
+
+
+def transactions_clean(**kwargs):
     # TODO read from xComs and push to xComs by cleaned columns
     data = kwargs['ti'].xcom_pull(
         task_ids='read_data_from_raw_level_task', key='transactions')
 
 
-def newpatients_transform_to_columns(**kwargs):
+def newpatients_clean(**kwargs):
     # TODO read from xComs and push to xComs by cleaned columns
     data = kwargs['ti'].xcom_pull(
         task_ids='read_data_from_raw_level_task', key='newpatients')
 
 
-def salesbybrand_transform_to_columns(**kwargs):
+def salesbybrand_clean(**kwargs):
     # TODO read from xComs and push to xComs by cleaned columns
     data = kwargs['ti'].xcom_pull(
         task_ids='read_data_from_raw_level_task', key='salesbybrand')
 
 
-def load_columns_to_bq():
+def load_clean_data_to_bq():
     # TODO read from xComs and push to BQ cleaned columns
+    # insert_clean_data(cleaned_df, DATASET_NAME_WHY_US, period)
     pass
 
 
 with DAG(
-    'get_columns_from_raw_level',
+    'clean_raw_level_data',
     default_args=default_args,
-    description='Read json file the BigQuery raw level and push columns to the column level',
+    description='Read json from the raw level, clean and push data to the cleaned level',
     schedule_interval=None,
     start_date=days_ago(2),
     tags=['Clean'],
@@ -148,17 +162,14 @@ with DAG(
     read_data_from_raw_level_task = PythonOperator(
         task_id='read_data_from_raw_level_task', python_callable=read_data_from_raw_level, dag=dag)
 
-    whyus_transform_to_columns_task = PythonOperator(
-        task_id='whyus_transform_to_columns_task', python_callable=whyus_transform_to_columns, dag=dag)
-    transactions_transform_to_columns_task = PythonOperator(
-        task_id='transactions_transform_to_columns_task', python_callable=transactions_transform_to_columns, dag=dag)
-    newpatients_transform_to_columns_task = PythonOperator(
-        task_id='newpatients_transform_to_columns_task', python_callable=newpatients_transform_to_columns, dag=dag)
-    salesbybrand_transform_to_columns_task = PythonOperator(
-        task_id='salesbybrand_transform_to_columns_task', python_callable=salesbybrand_transform_to_columns, dag=dag)
-
-    load_columns_to_bq_task = PythonOperator(
-        task_id='load_columns_to_bq_task', python_callable=load_columns_to_bq, dag=dag)
+    whyus_clean_task = PythonOperator(
+        task_id='whyus_clean_task', python_callable=whyus_clean, dag=dag)
+    transactions_clean_task = PythonOperator(
+        task_id='transactions_clean_task', python_callable=transactions_clean, dag=dag)
+    newpatients_clean_task = PythonOperator(
+        task_id='newpatients_clean_task', python_callable=newpatients_clean, dag=dag)
+    salesbybrand_clean_task = PythonOperator(
+        task_id='salesbybrand_clean_task', python_callable=salesbybrand_clean, dag=dag)
 
 check_raw_data_completeness_task >> continue_if_complete_data_task >> read_data_from_raw_level_task >> [
-    whyus_transform_to_columns_task, transactions_transform_to_columns_task, newpatients_transform_to_columns_task, salesbybrand_transform_to_columns_task] >> load_columns_to_bq_task
+    whyus_clean_task, transactions_clean_task, newpatients_clean_task, salesbybrand_clean_task]
