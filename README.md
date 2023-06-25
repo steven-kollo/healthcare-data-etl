@@ -13,5 +13,5 @@ PORT 5432
 
 
 <img src="./etl-scheme.png"/>
-<a href="https://raw.githubusercontent.com/steven-kollo/healthcare-data-etl/main/scheme.pn">Open architecture scheme in good quality</a>
+<a href="https://raw.githubusercontent.com/steven-kollo/healthcare-data-etl/main/scheme.png">Open architecture scheme in good quality</a>
 <hr>
