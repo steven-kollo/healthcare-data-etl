@@ -17,6 +17,9 @@ docker container run -d -p 3000:3000 upload_ui/main
 **PORT 5432**
 
 
-<img src="./architecture-scheme.png"/>
-<a href="https://raw.githubusercontent.com/steven-kollo/healthcare-data-etl/main/architecture-scheme.png">Open architecture scheme in good quality</a>
+<img src="./img/architecture.png"/>
+<a href="https://raw.githubusercontent.com/steven-kollo/healthcare-data-etl/main/img/architecture.png">Open architecture scheme in good quality</a>
+<hr>
+<img src="./img/healthcare_db_scheme.pdf"/>
+<a href="https://raw.githubusercontent.com/steven-kollo/healthcare-data-etl/main/architecture-scheme.png">Open DB scheme in good quality</a>
 <hr>
