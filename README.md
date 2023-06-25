@@ -12,6 +12,6 @@ PORT 8080
 PORT 5432
 
 
-<img src="./etl-scheme.png"/>
+<img src="./scheme.png"/>
 <a href="https://raw.githubusercontent.com/steven-kollo/healthcare-data-etl/main/scheme.png">Open architecture scheme in good quality</a>
 <hr>
