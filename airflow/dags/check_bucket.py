@@ -3,7 +3,7 @@ from airflow.operators.postgres_operator import PostgresOperator
 from airflow.operators.trigger_dagrun import TriggerDagRunOperator
 from datetime import timedelta
 from airflow import DAG
-from airflow.operators.python_operator import PythonOperator
+from airflow.operators.python_operator import PythonOperator, ShortCircuitOperator
 from airflow.utils.dates import days_ago
 
 default_args = {
@@ -41,7 +41,9 @@ def check_new_files(**kwargs):
         search_filename = increase_period_by_one_week(
             json_metadata[0], json_metadata[1])
         if (search_filename in file_names):
-            return search_filename
+            kwargs['ti'].xcom_push(key='file_name', value=search_filename)
+            return True
+    return False
 
 
 with DAG(
@@ -68,15 +70,17 @@ with DAG(
         delimiter='.csv',
         gcp_conn_id="gcp"
     )
-    check_new_files_task = PythonOperator(
-        task_id='check_new_files_task', python_callable=check_new_files, dag=dag
+    check_new_files_task = ShortCircuitOperator(
+        task_id='check_new_files_task',
+        python_callable=check_new_files,
+        dag=dag
     )
-    trigger_task = TriggerDagRunOperator(
-        task_id="trigger_task",
+    trigger_read_dag_task = TriggerDagRunOperator(
+        task_id="trigger_read_dag_task",
         trigger_dag_id="read_bucket_file",
         conf={
-            "filename": "{{ ti.xcom_pull(task_ids='check_new_files_task', key='return_value') }}"},
+            "filename": "{{ ti.xcom_pull(task_ids='check_new_files_task', key='file_name') }}"},
         dag=dag
     )
 
-get_last_loaded_jsons_task >> get_bucket_file_names_task >> check_new_files_task >> trigger_task
+get_last_loaded_jsons_task >> get_bucket_file_names_task >> check_new_files_task >> trigger_read_dag_task

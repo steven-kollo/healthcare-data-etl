@@ -1,42 +1,48 @@
 # from airflow_includes.modules.clean_raw.clean_raw import clean_df
 # from airflow_includes.modules.clean_raw.insert_cleaned import insert_clean_data
-# from google.cloud import bigquery
-# from datetime import timedelta
-# from airflow import DAG
-# from airflow.operators.python_operator import PythonOperator, ShortCircuitOperator
-# from airflow.utils.dates import days_ago
-# from airflow.models.param import Param
-# import pandas as pd
+from datetime import timedelta
+from airflow import DAG
+from airflow.operators.python_operator import PythonOperator, ShortCircuitOperator
+from airflow.utils.dates import days_ago
+from airflow.models.param import Param
+import pandas as pd
 
 # client = bigquery.Client()
 # DATASET_NAME_WHY_US = "whyus"  # TODO REPLACE WITH ENV VAR
 # REQUIRED_FIELDS_WHY_US = ["branch", "whyus",
 #                           "name"]
 
-# default_args = {
-#     'owner': 'airflow',
-#     'depends_on_past': False,
-#     'retries': 1,
-#     'retry_delay': timedelta(minutes=5),
-# }
+default_args = {
+    'owner': 'airflow',
+    'depends_on_past': False,
+    'retries': 1,
+    'retry_delay': timedelta(minutes=5),
+}
 
 
-# def check_raw_data_completeness():
-#     period = get_unfinished_period()
-#     print(f"Least unfinished period is: {period}")
-#     CHECK_DATA_QUERY = (
-#         f"SELECT * FROM `raw_json_data.metadata` WHERE period={period}"
-#     )
-#     query_job = client.query(CHECK_DATA_QUERY)
-#     rows = query_job.result()
-#     rows_count = 0
-#     for row in rows:
-#         rows_count += 1
-#     if rows_count == 4:
-#         print(f"Period {period} raw json data is ready for processing")
-#         return period
-#     print(f"Period {period} raw json data is not ready for processing yet")
-#     return False
+def check_raw_data_completeness(**context):
+    table = "raw_json_whyus"
+    period = "2023102"
+    # table = context['params']['table']
+    # period = context['params']['period']
+    print(table)
+    print(period)
+
+    # period = get_unfinished_period()
+    # print(f"Least unfinished period is: {period}")
+    # CHECK_DATA_QUERY = (
+    #     f"SELECT * FROM `raw_json_data.metadata` WHERE period={period}"
+    # )
+    # query_job = client.query(CHECK_DATA_QUERY)
+    # rows = query_job.result()
+    # rows_count = 0
+    # for row in rows:
+    #     rows_count += 1
+    # if rows_count == 4:
+    #     print(f"Period {period} raw json data is ready for processing")
+    #     return period
+    # print(f"Period {period} raw json data is not ready for processing yet")
+    return False
 
 
 # def get_unfinished_period():
@@ -138,27 +144,28 @@
 #     pass
 
 
-# with DAG(
-#     'clean_raw_level_data',
-#     default_args=default_args,
-#     description='Read json from the raw level, clean and push data to the cleaned level',
-#     schedule_interval=None,
-#     start_date=days_ago(2),
-#     tags=['Clean'],
-#     catchup=False,
-#     params={
-#         "filename": Param("", type="string")
-#     }
+with DAG(
+    'clean_raw_data',
+    default_args=default_args,
+    description='Read json from the raw level, clean and push data to the cleaned level',
+    schedule_interval=None,
+    start_date=days_ago(2),
+    tags=['Clean'],
+    catchup=False,
+    params={
+        "table": Param("", type="string"),
+        "period": Param("", type="string")
+    }
 
-# ) as dag:
-#     check_raw_data_completeness_task = PythonOperator(
-#         task_id='check_raw_data_completeness_task', python_callable=check_raw_data_completeness, dag=dag)
-#     continue_if_complete_data_task = ShortCircuitOperator(
-#         task_id="continue_if_complete_data_task",
-#         provide_context=True,
-#         python_callable=continue_if_complete_data,
-#         op_kwargs={},
-#     )
+) as dag:
+    check_raw_data_completeness_task = PythonOperator(
+        task_id='check_raw_data_completeness_task', python_callable=check_raw_data_completeness, provide_context=True, dag=dag)
+    # continue_if_complete_data_task = ShortCircuitOperator(
+    #     task_id="continue_if_complete_data_task",
+    #     provide_context=True,
+    #     python_callable=continue_if_complete_data,
+    #     op_kwargs={},
+    # )
 #     read_data_from_raw_level_task = PythonOperator(
 #         task_id='read_data_from_raw_level_task', python_callable=read_data_from_raw_level, dag=dag)
 
@@ -170,6 +177,6 @@
 #         task_id='newpatients_clean_task', python_callable=newpatients_clean, dag=dag)
 #     salesbybrand_clean_task = PythonOperator(
 #         task_id='salesbybrand_clean_task', python_callable=salesbybrand_clean, dag=dag)
-
+check_raw_data_completeness_task
 # check_raw_data_completeness_task >> continue_if_complete_data_task >> read_data_from_raw_level_task >> [
 #     whyus_clean_task, transactions_clean_task, newpatients_clean_task, salesbybrand_clean_task]
