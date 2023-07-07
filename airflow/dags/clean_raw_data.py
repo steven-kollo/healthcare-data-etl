@@ -5,7 +5,9 @@ from airflow import DAG
 from airflow.operators.python_operator import PythonOperator, ShortCircuitOperator
 from airflow.utils.dates import days_ago
 from airflow.models.param import Param
+from airflow.operators.postgres_operator import PostgresOperator
 import pandas as pd
+import json
 
 # client = bigquery.Client()
 # DATASET_NAME_WHY_US = "whyus"  # TODO REPLACE WITH ENV VAR
@@ -20,14 +22,41 @@ default_args = {
 }
 
 
-def check_raw_data_completeness(**context):
+def json_to_pd_df(raw_data):
+    raw_data = '{ "data": ' + raw_data[0][0] + "}"
+    print(raw_data)
+    dict_raw = json.loads(raw_data)
+    df = pd.DataFrame.from_records(dict_raw["data"])
+    print(df)
+    print("========")
+    return df
+
+
+def clean_data(**kwargs):
+    period = kwargs['ti'].xcom_pull(
+        task_ids='read_params_task', key='return_value')[1]
+    report_type = kwargs['ti'].xcom_pull(
+        task_ids='read_params_task', key='return_value')[0].split("_")[2]
+    raw_data = kwargs['ti'].xcom_pull(
+        task_ids='query_json_data_task', key="return_value")
+
+    df = json_to_pd_df(raw_data)
+    df = df[df['G'].notnull()]
+    headers = df.iloc[0].tolist()
+    print(df)
+    print(headers)
+    print(report_type)
+    print(period)
+
+
+def read_params(**context):
     table = "raw_json_whyus"
     period = "2023102"
     # table = context['params']['table']
     # period = context['params']['period']
     print(table)
     print(period)
-
+    return [table, int(period)]
     # period = get_unfinished_period()
     # print(f"Least unfinished period is: {period}")
     # CHECK_DATA_QUERY = (
@@ -158,8 +187,17 @@ with DAG(
     }
 
 ) as dag:
-    check_raw_data_completeness_task = PythonOperator(
-        task_id='check_raw_data_completeness_task', python_callable=check_raw_data_completeness, provide_context=True, dag=dag)
+    read_params_task = PythonOperator(
+        task_id='read_params_task', python_callable=read_params, provide_context=True, dag=dag)
+    query_json_data_task = PostgresOperator(
+        task_id='query_json_data_task',
+        postgres_conn_id='postgres',
+        sql="""
+            SELECT data FROM {{ ti.xcom_pull(task_ids='read_params_task', key='return_value')[0] }} WHERE period = {{ ti.xcom_pull(task_ids='read_params_task', key='return_value')[1]}}
+        """
+    )
+    clean_data_task = PythonOperator(
+        task_id='clean_data_task', python_callable=clean_data, provide_context=True, dag=dag)
     # continue_if_complete_data_task = ShortCircuitOperator(
     #     task_id="continue_if_complete_data_task",
     #     provide_context=True,
@@ -177,6 +215,6 @@ with DAG(
 #         task_id='newpatients_clean_task', python_callable=newpatients_clean, dag=dag)
 #     salesbybrand_clean_task = PythonOperator(
 #         task_id='salesbybrand_clean_task', python_callable=salesbybrand_clean, dag=dag)
-check_raw_data_completeness_task
+read_params_task >> query_json_data_task >> clean_data_task
 # check_raw_data_completeness_task >> continue_if_complete_data_task >> read_data_from_raw_level_task >> [
 #     whyus_clean_task, transactions_clean_task, newpatients_clean_task, salesbybrand_clean_task]
