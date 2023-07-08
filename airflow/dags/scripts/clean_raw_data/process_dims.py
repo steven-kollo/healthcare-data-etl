@@ -1,22 +1,3 @@
-from google.cloud import bigquery
-import pandas as pd
-client = bigquery.Client()
-
-
-def clean_df(df, headers, required_fields, dataset_name):
-    clean_df = pd.DataFrame()
-    for header in headers:
-        for field in required_fields:
-            if field in header.lower():
-                values = df.iloc[:, headers.index(header)].tolist()
-                values.pop(0)
-                unique_values = remove_duplicates(values)
-                update_dims(dataset_name, field, unique_values)
-                clean_df[field] = replace_dims_with_indexes(
-                    dataset_name, field, unique_values, values)
-    return clean_df
-
-
 def remove_duplicates(x):
     return list(dict.fromkeys(x))
 
@@ -35,8 +16,8 @@ def update_dims(dataset, field, new_dims):
         print("Nothing to add")
         return
 
-    client.query(generate_insert_dims_query(
-        dims_to_add, starting_index, dataset, field))
+    # client.query(generate_insert_dims_query(
+    #     dims_to_add, starting_index, dataset, field))
     print("New dims added:")
     print(dims_to_add)
 
@@ -58,13 +39,13 @@ def get_existing_dims(new_dims_str, dataset, field):
     GET_EXISTING_DIMS_QUERY = (
         f"SELECT value FROM `clean_data_{dataset}.{field}` WHERE value IN ({new_dims_str})"
     )
-    query_job = client.query(GET_EXISTING_DIMS_QUERY)
-    rows = query_job.result()
-    for row in rows:
-        try:
-            existing_dims.append(row.value)
-        except:
-            pass
+    # query_job = client.query(GET_EXISTING_DIMS_QUERY)
+    # rows = query_job.result()
+    # for row in rows:
+    #     try:
+    #         existing_dims.append(row.value)
+    #     except:
+    #         pass
     return existing_dims
 
 
@@ -98,12 +79,12 @@ def create_dims_dict(dims, dataset, field):
     GET_EXISTING_DIMS_QUERY = (
         f"SELECT * FROM `clean_data_{dataset}.{field}` WHERE value IN ({dims_str})"
     )
-    query_job = client.query(GET_EXISTING_DIMS_QUERY)
-    rows = query_job.result()
-    dims_dict = {"": ""}
-    for row in rows:
-        try:
-            dims_dict[row.value] = row.index
-        except:
-            pass
-    return dims_dict
+    # query_job = client.query(GET_EXISTING_DIMS_QUERY)
+    # rows = query_job.result()
+    # dims_dict = {"": ""}
+    # for row in rows:
+    #     try:
+    #         dims_dict[row.value] = row.index
+    #     except:
+    #         pass
+    # return dims_dict
