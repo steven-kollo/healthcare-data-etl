@@ -79,12 +79,11 @@ def format_int(column):
 
 def format_str(column):
     column = column.fillna(value="").astype("string")
-    column = column.str.lstrip()
+    column = column.str.strip()
     return column
 
 
 def transform_date(date):
-    # YYYY-MM-DD
     year = date[-4:]
     month = date[2:4]
     day = date[:2]
@@ -128,7 +127,7 @@ RAW_REPORTS_CONFIG = {
         "required_fields": ["TransDate", "PxPublicID", "PxLastName", "TransPublicID", "PaymentCategory", "ItemDesc", "SalesValue", "Discount", "NetSales", "Sales", "Takings", "Refunds1"],
         "db_fields": ["transDate", "pxPublicId", "pxLastName", "transPublicId", "paymentCategory", "itemDesc", "salesValue", "discount", "netSales", "sales", "takings", "refunds"],
         "type_fields": ["date", "int", "str", "int", "str", "str", "float", "float", "float", "float", "float", "float"],
-        "dim_tables_names": ["branch", "pxLastName", "paymentCategory", "itemDesc"],
+        "dim_tables_names": ["pxLastName", "paymentCategory", "itemDesc"],
         "facts_table_name": "transactions"
     },
     "salesbybrand": {
@@ -143,12 +142,6 @@ RAW_REPORTS_CONFIG = {
 }
 
 
-def format_df(df, fields, type_fields, format_scripts):
-    for i in range(len(fields)):
-        df[fields[i]] = format_scripts[type_fields[i]](df[fields[i]])
-    return df
-
-
 def filter_df_columns(raw_df, headers, required_fields):
     df_required_columns = pd.DataFrame()
     for header in headers:
@@ -161,21 +154,24 @@ def filter_df_columns(raw_df, headers, required_fields):
     return df_required_columns
 
 
-def to_required_columns(raw_df, report_type):
+def format_df(df, fields, type_fields, format_scripts):
+    for i in range(len(fields)):
+        df[fields[i]] = format_scripts[type_fields[i]](df[fields[i]])
+    return df
+
+
+def clean_raw_data(raw_df, report_type, ti):
     format_scripts = RAW_REPORTS_CONFIG["format_scripts"]
     config = RAW_REPORTS_CONFIG[report_type]
-    db_fields = config["db_fields"]
-    type_fields = config["type_fields"]
-    required_fields = config["required_fields"]
     prepared_data = config["prepare_script"](raw_df)
-    headers = prepared_data["headers"]
-    raw_df = prepared_data["df"]
 
-    df_required_columns = filter_df_columns(raw_df, headers, required_fields)
+    df_required_columns = filter_df_columns(
+        prepared_data["df"], prepared_data["headers"], config["required_fields"])
     cleaned_df = config["clean_script"](df_required_columns)
     cleaned_df = rename_df_columns(
-        cleaned_df, required_fields, db_fields)
-    formated_df = format_df(cleaned_df, db_fields, type_fields, format_scripts)
+        cleaned_df, config["required_fields"], config["db_fields"])
+    cleaned_df = format_df(
+        cleaned_df, config["db_fields"], config["type_fields"], format_scripts)
+    cleaned_df.info()
 
-    formated_df.info()
-    return formated_df
+    return cleaned_df

@@ -31,10 +31,6 @@ with DAG(
         """
     )
 
-#     2022413	transactions
-# 2022413	whyUs
-# 2022413	newPatients
-# 2022413	salesByBrand
     create_raw_json_transactions_table_task = PostgresOperator(
         task_id='create_raw_json_transactions_table_task',
         postgres_conn_id='postgres',
@@ -76,6 +72,63 @@ with DAG(
                 period INT NOT NULL,
                 data CHARACTER VARYING,
                 PRIMARY KEY (period)
+            )
+        """
+    )
+    create_dim_branch_table_task = PostgresOperator(
+        task_id='create_dim_branch_table_task',
+        postgres_conn_id='postgres',
+        sql="""
+            CREATE TABLE IF NOT EXISTS branch (
+                branchId SERIAL PRIMARY KEY,
+                branch CHARACTER VARYING,
+                UNIQUE(branch)
+            )
+        """
+    )
+    create_dim_product_table_task = PostgresOperator(
+        task_id='create_dim_product_table_task',
+        postgres_conn_id='postgres',
+        sql="""
+            CREATE TABLE IF NOT EXISTS product (
+                productId SERIAL PRIMARY KEY,
+                product CHARACTER VARYING,
+                UNIQUE(product)
+            )
+        """
+    )
+    create_dim_whyUsClientName_table_task = PostgresOperator(
+        task_id='create_dim_whyUsClientName_table_task',
+        postgres_conn_id='postgres',
+        sql="""
+            CREATE TABLE IF NOT EXISTS whyUsClientName (
+                whyUsClientNameId SERIAL PRIMARY KEY,
+                whyUsClientName CHARACTER VARYING,
+                UNIQUE(whyUsClientName)
+            )
+        """
+    )
+    create_dim_whyUs_table_task = PostgresOperator(
+        task_id='create_dim_whyUs_table_task',
+        postgres_conn_id='postgres',
+        sql="""
+            CREATE TABLE IF NOT EXISTS whyUs (
+                whyUsId SERIAL PRIMARY KEY,
+                whyUs CHARACTER VARYING,
+                UNIQUE(whyUs)
+            )
+        """
+    )
+    create_fact_survey_table_task = PostgresOperator(
+        task_id='create_fact_survey_table_task',
+        postgres_conn_id='postgres',
+        sql="""
+            CREATE TABLE IF NOT EXISTS survey (
+                surveyId SERIAL PRIMARY KEY,
+                period INT NOT NULL,
+                branchId INT NOT NULL,
+                whyUsClientNameId INT NOT NULL,
+                whyUsId INT NOT NULL
             )
         """
     )
