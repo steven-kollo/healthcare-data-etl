@@ -7,9 +7,9 @@ from airflow.models.param import Param
 from airflow.operators.postgres_operator import PostgresOperator
 import pandas as pd
 import json
-from scripts.clean_raw_data.df_to_required_columns import clean_raw_data
+from scripts.clean_raw_data.clean_raw_data import clean_raw_data
 from scripts.clean_raw_data.create_dims_query import create_dims_query
-from scripts.clean_raw_data.df_to_required_columns import RAW_REPORTS_CONFIG
+from scripts.clean_raw_data.clean_raw_data import RAW_REPORTS_CONFIG
 
 default_args = {
     'owner': 'airflow',
@@ -47,10 +47,8 @@ def clean_data(**kwargs):
 
 
 def read_params(**context):
-    table = "raw_json_newpatients"
-    period = "2023103"
-    # table = context['params']['table']
-    # period = context['params']['period']
+    table = context['params']['table']
+    period = context['params']['period']
     report_config = RAW_REPORTS_CONFIG[table.split("_")[2]]
     return [table, int(period), report_config["dim_tables_names"], report_config["facts_table_name"]]
 

@@ -4,6 +4,7 @@ from airflow.operators.python_operator import PythonOperator, ShortCircuitOperat
 from airflow.utils.dates import days_ago
 from airflow.models.param import Param
 from airflow.operators.postgres_operator import PostgresOperator
+from scripts.clean_raw_data.create_insert_data_query import create_insert_data_query
 import pandas as pd
 import json
 
@@ -34,6 +35,25 @@ def push_params_to_xcom(**kwargs):
     kwargs['ti'].xcom_push(key="dims_tables", value=params[4])
 
 
+def read_xcom_str_as_list(str):
+    return json.loads('{ "data": ' + f"{str}".replace("'", '"') + "}")['data']
+
+
+def create_insert_data_query_main(**kwargs):
+    data = kwargs['ti'].xcom_pull(
+        task_ids='push_params_to_xcom_task', key='cleaned_data')
+    dims = kwargs['ti'].xcom_pull(
+        task_ids='push_params_to_xcom_task', key='dims_tables')
+    dims = read_xcom_str_as_list(dims)
+    period = kwargs['ti'].xcom_pull(
+        task_ids='push_params_to_xcom_task', key='period')
+    facts_table = kwargs['ti'].xcom_pull(
+        task_ids='push_params_to_xcom_task', key='facts_table')
+
+    return create_insert_data_query(
+        data, dims, period, facts_table)
+
+
 with DAG(
     'insert_cleaned_data',
     default_args=default_args,
@@ -55,10 +75,17 @@ with DAG(
         task_id='read_params_task', python_callable=read_params, provide_context=True, dag=dag)
     push_params_to_xcom_task = PythonOperator(
         task_id='push_params_to_xcom_task', python_callable=push_params_to_xcom, provide_context=True, dag=dag)
-    # insert_dims_task = PostgresOperator(
-    #     task_id='insert_dims_task',
-    #     postgres_conn_id='postgres',
-    #     sql="""{{ ti.xcom_pull(task_ids='push_params_to_xcom_task', key='insert_dims_query') }}"""
-    # )
-read_params_task >> push_params_to_xcom_task
-# >> insert_dims_task
+    create_insert_data_query_task = PythonOperator(
+        task_id='create_insert_data_query_task', python_callable=create_insert_data_query_main, provide_context=True, dag=dag)
+
+    insert_dims_task = PostgresOperator(
+        task_id='insert_dims_task',
+        postgres_conn_id='postgres',
+        sql="""{{ ti.xcom_pull(task_ids='push_params_to_xcom_task', key='insert_dims_query') }}"""
+    )
+    insert_data_task = PostgresOperator(
+        task_id='insert_data_task',
+        postgres_conn_id='postgres',
+        sql="""{{ ti.xcom_pull(task_ids='create_insert_data_query_task', key='return_value') }}"""
+    )
+read_params_task >> push_params_to_xcom_task >> create_insert_data_query_task >> insert_dims_task >> insert_data_task
